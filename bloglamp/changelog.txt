@@ -1,5 +1,9 @@
+= 1.0.4 =
+* Hero loop issue fixed.
+* Query hero slider based on category term_id instead of slug for better compatibility.
+
 = 1.0.3 =
-* Hero customizer setting issue fixed
+* Hero setting issue fixed
 
 = 1.0.2 =
 * Style issue fixed

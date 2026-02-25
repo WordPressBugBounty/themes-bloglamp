@@ -76,6 +76,15 @@ final class Bloglamp {
 	function bloglamp_styles() {
 		wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
 		wp_enqueue_style( 'child-style', get_stylesheet_directory_uri() . '/style.css', array( 'parent-style' ) );
+
+		if ( is_rtl() ) {
+			wp_enqueue_style(
+				'parent-rtl',
+				get_template_directory_uri() . '/rtl.css',
+				array( 'parent-style' ),
+				wp_get_theme()->get( 'Version' )
+			);
+		}
 	}
 }
 

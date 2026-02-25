@@ -19,22 +19,30 @@ $bloghash_args = array(
 	'order'               => $bloghash_hero_slider_order[1],
 	'orderby'             => $bloghash_hero_slider_order[0],
 	'ignore_sticky_posts' => true,
-	'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-		array(
-			'taxonomy' => 'post_format',
-			'field'    => 'slug',
-			'terms'    => array( 'post-format-quote' ),
-			'operator' => 'NOT IN',
-		),
+);
+
+$tax_query = array(
+	array(
+		'taxonomy' => 'post_format',
+		'field'    => 'slug',
+		'terms'    => array( 'post-format-quote' ),
+		'operator' => 'NOT IN',
 	),
 );
 
-$bloghash_hero_categories = bloghash_option( 'hero_slider_category' );
+$bloghash_hero_categories = array_filter( array_map( 'absint', (array) bloghash_option( 'hero_slider_category' ) ) );
 
+// If categories are specified
 if ( ! empty( $bloghash_hero_categories ) ) {
-	$bloghash_args['category_name'] = implode( ', ', $bloghash_hero_categories );
+	$tax_query[] = array(
+		'taxonomy' => 'category',
+		'field'    => 'term_id',
+		'terms'    => $bloghash_hero_categories,
+		'operator' => 'IN',
+	);
 }
 
+$bloghash_args['tax_query'] = $tax_query;
 $bloghash_args = apply_filters( 'bloghash_hero_slider_query_args', $bloghash_args );
 
 $bloghash_posts = new WP_Query( $bloghash_args );
@@ -123,6 +131,13 @@ $bloghash_hero_column = bloghash_option( 'hero_slider_column' );
 <div class="bloghash-hero-slider six-slider slider-overlay-<?php echo esc_attr( $bloghash_hero_overlay ); ?>">
 	<div class="bloghash-hero-container <?php echo esc_attr( $bloghash_hero_container ); ?>">
 		<div class="bloghash-swiper swiper" data-swiper-options='{
+				"centeredSlides": true,
+				"loop": true,
+				"autoplay": {"delay": 8000, "disableOnInteraction": false},
+				"speed": 1000,
+				"navigation": {"nextEl": ".hero-next", "prevEl": ".hero-prev"},
+				"loopedSlides": <?php echo $bloghash_posts->post_count; ?>,
+    			"loopAdditionalSlides": <?php echo esc_attr( $bloghash_hero_column ); ?>,
 				"breakpoints": {
 					"0": {
 						"spaceBetween": 10,
@@ -136,15 +151,7 @@ $bloghash_hero_column = bloghash_option( 'hero_slider_column' );
 						"spaceBetween": 24,
 						"slidesPerView": <?php echo esc_attr( $bloghash_hero_column ); ?>
 					}
-				},
-				"loop": true,
-				"loopAdditionalSlides": 3,
-				"loopedSlides": 3,
-				"centerSlide": true,
-				"slideToClickedSlide": true,
-				"autoplay": {"delay": 8000, "disableOnInteraction": false},
-				"speed": 1000,
-				"navigation": {"nextEl": ".hero-next", "prevEl": ".hero-prev"}
+				}
 			}'>
 			<div class="swiper-wrapper">
 				<?php echo wp_kses( $bloghash_hero_items_html, bloghash_get_allowed_html_tags() ); ?>
